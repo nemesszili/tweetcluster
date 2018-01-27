@@ -6,6 +6,9 @@ from sklearn.decomposition import TruncatedSVD
 from sklearn.cluster import KMeans
 from scipy.cluster.hierarchy import dendrogram, linkage
 
+from matplotlib import pyplot as plt
+
+
 def stemmer(text):
     stemmer = PorterStemmer()
     tokens = word_tokenize(text)
@@ -34,14 +37,12 @@ def plot_complete(tf_idf_matrix, pl):
     model = TruncatedSVD(n_components=2, algorithm='randomized', n_iter=100, tol=0.0)
     svd = model.fit_transform(tf_idf_matrix)
     Z = linkage(svd, 'complete')
-    dendrogram(Z,  leaf_font_size=8, truncate_mode='lastp', p=100, orientation='top', no_labels=True)
-    print ("here")
-
-    # pl.plot()
+    dendrogram(Z,  leaf_font_size=8, truncate_mode='lastp', p=100, orientation='top', no_labels=True, ax=pl)
+    pl.plot()
 
 def plot_single(tf_idf_matrix, pl):
     model = TruncatedSVD(n_components=2, algorithm='randomized', n_iter=100, tol=0.0)
     svd = model.fit_transform(tf_idf_matrix)
     Z = linkage(svd, 'single')
-    dendrogram(Z,  leaf_font_size=8, truncate_mode='lastp', p=30, orientation='top')
-    # pl.plot()
+    dendrogram(Z,  leaf_font_size=8, truncate_mode='lastp', p=30, orientation='top', ax=pl)
+    pl.plot()

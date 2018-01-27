@@ -8,10 +8,6 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
-from matplotlib.figure import Figure
-
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -88,15 +84,6 @@ class Ui_MainWindow(object):
         self.groupBox_4 = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_4.setGeometry(QtCore.QRect(10, 10, 521, 321))
         self.groupBox_4.setObjectName("groupBox_4")
-
-        self.figure = Figure()
-        self.canvas = FigureCanvas(self.figure)
-        self.toolbar = NavigationToolbar(self.canvas, self.groupBox_4)
-        layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(self.toolbar)
-        layout.addWidget(self.canvas)
-        self.groupBox_4.setLayout(layout)
-
         self.verticalLayoutWidget = QtWidgets.QWidget(self.groupBox_4)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 20, 501, 291))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
