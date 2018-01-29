@@ -1,6 +1,7 @@
 import sys
 import json
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QObject, pyqtSignal
 
 from frontend import main_window_design
 from backend.tweet import getTweets, MAX_QUERY
@@ -39,6 +40,7 @@ class MainWindow(QtWidgets.QMainWindow, main_window_design.Ui_MainWindow):
             if self.queryEdit.text():
                 self.progressLabel.setText("Fetching tweets...")
                 self.thread = TweetThread(self.queryEdit.text(), self.nrTweet.value())
+                self.thread.emitter.connect(self._print_labels)
                 self.thread.finished.connect(self._tweetOver)
                 self.thread.start()
             else:
@@ -54,6 +56,7 @@ class MainWindow(QtWidgets.QMainWindow, main_window_design.Ui_MainWindow):
             number_of_clusters = self.nrClusters.value()
             cluster_type = self.algCombo.currentText()
             self.thread = ClusterThread(cluster_type, number_of_clusters, self.pl, self.labelsView)
+            self.thread.labelEmitter.connect(self._get_labels)
             self.clusterCombo.clear()
             for i in range(1, number_of_clusters+1):
                 self.clusterCombo.addItem(str(i))
@@ -67,7 +70,19 @@ class MainWindow(QtWidgets.QMainWindow, main_window_design.Ui_MainWindow):
         self.thread = None
 
     def _clusterChanged(self):
-        print ("changed")
+        try:
+            index = int(self.clusterCombo.currentText())-1
+            self.labelsView.setText(self.labels[index])
+            self.tweetView.setText(self.clusteredTweets[index])
+        except Exception as ex:
+            print("Combobox value inited, not real error")
+
+    def _get_labels(self, labels, clusteredTweets):
+        self.labels = labels
+        self.clusteredTweets = clusteredTweets
+        self.labelsView.setText(labels[0])
+        self.tweetView.setText(clusteredTweets[0])
+        # self.clusterCombo
 
 
 class TweetThread(QtCore.QThread):
@@ -84,7 +99,10 @@ class TweetThread(QtCore.QThread):
         with open('tweet.json', 'w') as f:
             json.dump(self.tweets, f)
 
-class ClusterThread(QtCore.QThread):
+class ClusterThread(QtCore.QThread, QObject):
+
+    labelEmitter = pyqtSignal(object, object)
+
     def __init__(self, alg_combo_value, number_of_clusters, pl, lab_view):
         super(self.__class__, self).__init__()
         self.alg_combo_value = alg_combo_value
@@ -94,25 +112,26 @@ class ClusterThread(QtCore.QThread):
         self.lab_view = lab_view
 
     def run(self):
-        datastore = None
+        tweets = None
         with open('tweet.json', 'r') as f:
-            datastore = json.load(f)
-        self.cluster_class.tf_idf(datastore)        
+            tweets = json.load(f)
+        self.cluster_class.tf_idf(tweets)
         self.pl.clear()
+        labels = None
+        clusteredTweets = None
         if self.alg_combo_value == "KMeans":
             self.cluster_class.k_means(self.number_of_clusters)
-            labels = self.getKMLabels()
-            # self.lab_view.setText(labels) ????? nem megy es nem tudom hogy oldjam meg, tele van a faszom
+            labels, clusteredTweets = self.cluster_class.getKMLabels(self.number_of_clusters)
             self.cluster_class.plot_k_means(self.pl)
-        if self.alg_combo_value == "Single linkage":
-            self.cluster_class.plot_single(self.pl)
-        if self.alg_combo_value == "Complete linkage":
-            self.cluster_class.plot_complete(self.pl)
-
-    def getKMLabels(self):
-        labels = self.cluster_class.getKMLabels(self.number_of_clusters)
-        print(labels)
-        return labels
+        elif self.alg_combo_value == "Ward linkage":
+            self.cluster_class.calculateWardLabels(self.number_of_clusters)
+            self.cluster_class.plot_ward(self.number_of_clusters, self.pl)
+            labels, clusteredTweets = self.cluster_class.getWard_CompleteLabels(self.number_of_clusters)
+        elif self.alg_combo_value == "Complete linkage":
+            self.cluster_class.calculateCompleteLabels(self.number_of_clusters)
+            self.cluster_class.plot_complete(self.number_of_clusters, self.pl)
+            labels, clusteredTweets = self.cluster_class.getWard_CompleteLabels(self.number_of_clusters)
+        self.labelEmitter.emit(labels, clusteredTweets)
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
