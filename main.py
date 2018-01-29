@@ -4,7 +4,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 from frontend import main_window_design
 from backend.tweet import getTweets, MAX_QUERY
-from backend.cluster import tf_idf, k_means, plot_k_means, plot_single, plot_complete
+from backend.cluster import Clusterizer
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
@@ -51,7 +51,13 @@ class MainWindow(QtWidgets.QMainWindow, main_window_design.Ui_MainWindow):
     def _clusterButton(self):
         if self.thread is None:
             self.progressLabel.setText("Clustering...")
-            self.thread = ClusterThread(self.algCombo.currentText(), 2, self.pl)
+            number_of_clusters = self.nrClusters.value()
+            cluster_type = self.algCombo.currentText()
+            self.thread = ClusterThread(cluster_type, number_of_clusters, self.pl, self.labelsView)
+            self.clusterCombo.clear()
+            for i in range(1, number_of_clusters+1):
+                self.clusterCombo.addItem(str(i))
+            # self.labelsView.setText(self.thread.getKMLabels())
             self.thread.finished.connect(self._clusterOver)
             self.thread.start()
 
@@ -79,27 +85,34 @@ class TweetThread(QtCore.QThread):
             json.dump(self.tweets, f)
 
 class ClusterThread(QtCore.QThread):
-    def __init__(self, alg_combo_value, cluster_size, pl):
+    def __init__(self, alg_combo_value, number_of_clusters, pl, lab_view):
         super(self.__class__, self).__init__()
         self.alg_combo_value = alg_combo_value
-        self.cluster_size = cluster_size
+        self.number_of_clusters = number_of_clusters
         self.pl = pl
+        self.cluster_class = Clusterizer()
+        self.lab_view = lab_view
 
     def run(self):
         datastore = None
         with open('tweet.json', 'r') as f:
             datastore = json.load(f)
-        tf_idf_matrix = tf_idf(datastore)        
+        self.cluster_class.tf_idf(datastore)        
         self.pl.clear()
         if self.alg_combo_value == "KMeans":
-            km = k_means(tf_idf_matrix, self.cluster_size)
-            plot_k_means(tf_idf_matrix, km, self.pl)
+            self.cluster_class.k_means(self.number_of_clusters)
+            labels = self.getKMLabels()
+            # self.lab_view.setText(labels) ????? nem megy es nem tudom hogy oldjam meg, tele van a faszom
+            self.cluster_class.plot_k_means(self.pl)
         if self.alg_combo_value == "Single linkage":
-            plot_single(tf_idf_matrix, self.pl)
+            self.cluster_class.plot_single(self.pl)
         if self.alg_combo_value == "Complete linkage":
-            plot_complete(tf_idf_matrix, self.pl)
-         
-            
+            self.cluster_class.plot_complete(self.pl)
+
+    def getKMLabels(self):
+        labels = self.cluster_class.getKMLabels(self.number_of_clusters)
+        print(labels)
+        return labels
 
 def main():
     app = QtWidgets.QApplication(sys.argv)

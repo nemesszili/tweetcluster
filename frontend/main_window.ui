@@ -87,6 +87,19 @@
       <number>100</number>
      </property>
     </widget>
+    <widget class="QPushButton" name="tweetButton">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>110</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Get tweets</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_2">
     <property name="geometry">
@@ -151,6 +164,38 @@
       <string>Clusterize</string>
      </property>
     </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>70</y>
+       <width>111</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Nr of clusters:</string>
+     </property>
+    </widget>
+    <widget class="QSpinBox" name="nrClusters">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>70</y>
+       <width>81</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>2</number>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>2</number>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
@@ -171,16 +216,6 @@
        <y>20</y>
        <width>551</width>
        <height>291</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QListView" name="labelsView">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>340</y>
-       <width>131</width>
-       <height>191</height>
       </rect>
      </property>
     </widget>
@@ -248,6 +283,16 @@
       <string>Select cluster:</string>
      </property>
     </widget>
+    <widget class="QTextEdit" name="labelsView">
+     <property name="geometry">
+      <rect>
+       <x>23</x>
+       <y>340</y>
+       <width>131</width>
+       <height>191</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_4">
     <property name="geometry">
@@ -299,19 +344,6 @@
      <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="tweetButton">
-    <property name="geometry">
-     <rect>
-      <x>250</x>
-      <y>500</y>
-      <width>81</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Get tweets</string>
-    </property>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -319,7 +351,7 @@
      <x>0</x>
      <y>0</y>
      <width>1132</width>
-     <height>25</height>
+     <height>30</height>
     </rect>
    </property>
   </widget>
