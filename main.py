@@ -40,7 +40,6 @@ class MainWindow(QtWidgets.QMainWindow, main_window_design.Ui_MainWindow):
             if self.queryEdit.text():
                 self.progressLabel.setText("Fetching tweets...")
                 self.thread = TweetThread(self.queryEdit.text(), self.nrTweet.value())
-                self.thread.emitter.connect(self._print_labels)
                 self.thread.finished.connect(self._tweetOver)
                 self.thread.start()
             else:
