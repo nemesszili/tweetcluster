@@ -96,7 +96,7 @@ class Clusterizer():
 			for j in range(len(self.tweets)):
 				if self.Z.labels_[j] == i:
 					count += 1
-					clusteredTweets[i] += "{}: {}\n".format(count, self.tweets[j])
+					clusteredTweets[i] += "{}: {}\n".format(count, repr(self.tweets[j]))
 		return labels, clusteredTweets
 
 
